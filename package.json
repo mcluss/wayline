@@ -4,6 +4,10 @@
   "scripts": { "dev": "next dev", "build": "next build", "start": "next start" },
   "dependencies": {
     "@privy-io/react-auth": "^3.7.0",
+    "@solana-program/memo": "latest",
+    "@solana-program/system": "latest",
+    "@solana-program/token": "latest",
+    "@solana/kit": "latest",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

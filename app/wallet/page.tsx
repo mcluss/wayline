@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { BankDeposit } from "./BankDeposit";
 
 export default function WalletPage() {
   const { ready, authenticated, login, logout, user } = usePrivy();
@@ -52,7 +53,8 @@ export default function WalletPage() {
           )}
         </section>
       )}
-      <p className="muted small">Demo: this wallet holds no funds. Funding and payouts come next.</p>
+      {ready && authenticated && wallet && <BankDeposit ethereumAddress={wallet.address} />}
+      <p className="muted small">Bank deposits are processed by Bridge. Payouts come next.</p>
     </main>
   );
 }

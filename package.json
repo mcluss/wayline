@@ -1,13 +1,17 @@
 {
   "name": "wayline",
   "private": true,
-  "scripts": { "dev": "next dev", "build": "next build", "start": "next start" },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
   "dependencies": {
     "@privy-io/react-auth": "^3.7.0",
-    "@solana-program/memo": "latest",
-    "@solana-program/system": "latest",
-    "@solana-program/token": "latest",
-    "@solana/kit": "latest",
+    "@solana-program/memo": "0.16.0",
+    "@solana-program/system": "0.16.0",
+    "@solana-program/token": "0.18.0",
+    "@solana/kit": "8.6.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

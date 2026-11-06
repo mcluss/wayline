@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wayline: cross-border business payments on stablecoin rails</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3e9e3;--surface:#faf4f0;--sand:#e3d2c6;--ink:#231c19;--mute:#6b5d56;--accent:#2f3cf0;--on-accent:#fff;--ok:#1f7a4d;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17110f;--surface:#211a17;--sand:#3a2e29;--ink:#f3e9e3;--mute:#b3a39a;--accent:#8c96ff;--on-accent:#12104a;--ok:#6fd3a0;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17110f;--surface:#211a17;--sand:#3a2e29;--ink:#f3e9e3;--mute:#b3a39a;--accent:#8c96ff;--on-accent:#12104a;--ok:#6fd3a0;color-scheme:dark}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.6 "Instrument Sans",system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+h1,h2,h3{font-family:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;letter-spacing:-.025em;line-height:1.08;margin:0}
+h1{font-size:clamp(2.4rem,5.4vw,4.3rem);font-weight:700}
+h2{font-size:clamp(1.8rem,3.4vw,2.6rem);font-weight:700}
+h3{font-size:1.2rem;font-weight:500;letter-spacing:-.01em}
+p{margin:0}.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bg);border-bottom:1px solid var(--sand)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;font:700 1.35rem "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;text-decoration:none}
+.nav nav{display:flex;gap:26px;font-size:.95rem}.nav nav a{text-decoration:none;color:var(--mute)}.nav nav a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:999px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font:600 .98rem "Instrument Sans",sans-serif;text-decoration:none;cursor:pointer}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn:disabled{opacity:.55;cursor:progress}
+.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center;padding:72px 0 88px}
+.hero p.lead{font-size:1.2rem;color:var(--mute);max-width:34em;margin:24px 0 32px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.sim{background:var(--surface);border:1px solid var(--sand);border-radius:24px;padding:26px}
+.sim h2{font-size:1.25rem;margin-bottom:18px}
+.field{margin-bottom:16px}.field>label,.field>span{display:block;font-size:.88rem;font-weight:600;margin-bottom:7px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg label{flex:1 1 auto;text-align:center;border:1.5px solid var(--sand);border-radius:12px;padding:9px 12px;font-size:.92rem;cursor:pointer;background:var(--bg)}
+.seg label:has(:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg));font-weight:600}
+.seg label:has(:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+input[type=text],input[type=email],input[type=number]{width:100%;min-height:46px;border:1.5px solid var(--sand);border-radius:12px;background:var(--bg);color:var(--ink);font:500 1rem "Instrument Sans",sans-serif;padding:0 14px;font-variant-numeric:tabular-nums}
+.tl{list-style:none;margin:22px 0 0;padding:0;border-top:1px solid var(--sand)}
+.tl li{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:13px 0;border-bottom:1px solid var(--sand)}
+.dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--sand);margin-top:3px}
+.tl li[data-s=active] .dot{border-color:var(--accent);background:var(--accent);animation:p 1s ease-in-out infinite}
+.tl li[data-s=done] .dot{border-color:var(--ok);background:var(--ok)}
+.tl strong{display:block;font-weight:600;font-size:.98rem}.tl span.d{display:block;font-size:.88rem;color:var(--mute)}
+.tl li[data-s=pending]{opacity:.6}
+@keyframes p{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 22%,transparent)}}
+.note{font-size:.82rem;color:var(--mute);margin-top:14px}
+#res{font-weight:600;color:var(--ok);margin-top:12px;min-height:1.4em}
+section{padding:80px 0;border-top:1px solid var(--sand)}
+.sec-h{max-width:30em;margin-bottom:44px}.sec-h p{color:var(--mute);margin-top:14px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.three>div{border-top:3px solid var(--ink);padding-top:18px}.three p{color:var(--mute);margin-top:10px}
+.feat{display:grid;grid-template-columns:1fr 1fr;column-gap:56px}
+.feat div{padding:22px 0;border-top:1px solid var(--sand)}.feat p{color:var(--mute);margin-top:6px}
+dl{margin:0;max-width:760px}dl div{display:grid;grid-template-columns:150px 1fr;gap:20px;padding:18px 0;border-top:1px solid var(--sand)}
+dt{font:700 1.3rem "Bricolage Grotesque",sans-serif;letter-spacing:-.02em}dd{margin:0;color:var(--mute)}
+details{border-top:1px solid var(--sand);padding:20px 0;max-width:760px}details:last-of-type{border-bottom:1px solid var(--sand)}
+summary{font:500 1.15rem "Bricolage Grotesque",sans-serif;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::after{content:"+";font-size:1.5rem;line-height:1}details[open] summary::after{content:"\2212"}
+details p{color:var(--mute);margin-top:12px}
+.demo{background:var(--ink);color:var(--bg);border-radius:28px;padding:56px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;border:0}
+.demo input{background:transparent;border-color:color-mix(in srgb,var(--bg) 35%,transparent);color:var(--bg);margin-bottom:12px}
+.demo input::placeholder{color:color-mix(in srgb,var(--bg) 60%,transparent)}
+.demo .btn.pri{width:100%}
+.demo p{margin-top:12px;opacity:.75}
+footer{padding:48px 0 64px;border-top:1px solid var(--sand);font-size:.88rem;color:var(--mute)}
+footer .links{display:flex;gap:20px;flex-wrap:wrap;margin:16px 0}footer p{max-width:46em}
+@media(max-width:880px){.hero,.demo,.three,.feat{grid-template-columns:1fr}.hero{gap:40px;padding:48px 0 64px}.demo{padding:32px 24px}.nav nav{display:none}dl div{grid-template-columns:1fr;gap:4px}section{padding:60px 0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav">
+<a class="logo" href="#top" aria-label="Wayline home"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M2 7h14l8 6-8 6H2" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Wayline</a>
+<nav aria-label="Primary"><a href="#how">How it works</a><a href="#features">Features</a><a href="#stack">Built on</a><a href="#faq">FAQ</a><a href="/wallet">Wallet</a></nav>
+<a class="btn pri" href="#demo">Book a demo</a>
+</div></header>
+<main id="top">
+<div class="wrap hero">
+<div>
+<h1>Pay anyone, anywhere, from one dollar balance.</h1>
+<p class="lead">Wayline turns a bank transfer into a reconciled payout. Fund in dollars, settle in OUSD on Tempo, and pay out to local bank accounts or wallets.</p>
+<div class="cta"><a class="btn pri" href="#demo">Book a demo</a><a class="btn" href="#how">See how it works</a></div>
+</div>
+<div class="sim" aria-label="Payment simulator">
+<h2>Try a payment</h2>
+<div class="field"><span id="l1">Fund with</span>
+<div class="seg" role="radiogroup" aria-labelledby="l1">
+<label><input type="radio" name="m" value="ach" checked>Bank (ACH)</label><label><input type="radio" name="m" value="card">Card</label><label><input type="radio" name="m" value="wire">Wire</label></div></div>
+<div class="row">
+<div class="field"><label for="amt">Amount (USD)</label><input id="amt" type="number" min="1" step="0.01" value="25000" inputmode="decimal"></div>
+<div class="field"><label for="ref">Invoice reference</label><input id="ref" type="text" value="INV-2048" maxlength="24"></div></div>
+<div class="field"><span id="l2">Pay out to</span>
+<div class="seg" role="radiogroup" aria-labelledby="l2">
+<label><input type="radio" name="d" value="bank" checked>Local bank account</label><label><input type="radio" name="d" value="wallet">Recipient wallet</label></div></div>
+<button class="btn pri" id="go" type="button" style="width:100%">Send payment</button>
+<ol class="tl" id="tl" aria-live="polite"></ol>
+<p id="res"></p>
+<p class="note">This is a simulation. Amounts and steps are illustrative, and no fees, rates or timings are shown.</p>
+</div>
+</div>
+
+<section id="how"><div class="wrap">
+<div class="sec-h"><h2>One payment, three moves</h2><p>Your team funds a balance and sends. We handle conversion, settlement and delivery.</p></div>
+<div class="three">
+<div><h3>Fund in dollars</h3><p>Pull from a linked bank account, charge a card, or send a wire. Stripe and Bridge handle the funding rails.</p></div>
+<div><h3>Convert and settle</h3><p>Dollars become OUSD and move on Tempo, with your invoice reference attached to the transfer.</p></div>
+<div><h3>Pay out locally</h3><p>Recipients receive funds in a local bank account or a wallet, depending on what they use.</p></div>
+</div></div></section>
+
+<section id="features"><div class="wrap">
+<div class="sec-h"><h2>Built for the people who close the books</h2></div>
+<div class="feat">
+<div><h3>One balance, every rail</h3><p>Fund by ACH pull, card or wire and see it all in a single ledger.</p></div>
+<div><h3>Local payouts</h3><p>Send to bank accounts or wallets in [supported countries: TBD].</p></div>
+<div><h3>Invoice-level reconciliation</h3><p>Each transfer carries a memo, so payments match invoices without spreadsheet detective work.</p></div>
+<div><h3>Wallets for your business</h3><p>Create wallets and set rules for who can approve a payment.</p></div>
+<div><h3>Costs you can see first</h3><p>Network fees are paid in stablecoin, and pricing is shown before you send [pricing: TBD].</p></div>
+<div><h3>Compliance built in</h3><p>Business verification and screening run through our regulated partners.</p></div>
+</div></div></section>
+
+<section id="stack"><div class="wrap">
+<div class="sec-h"><h2>Built on infrastructure you can verify</h2><p>Each partner does one job, and you can read their documentation.</p></div>
+<dl>
+<div><dt>Bridge</dt><dd>Fiat on and offramps, business verification, and issuer of OUSD.</dd></div>
+<div><dt>Stripe</dt><dd>Card onramp, ACH pull and bank account linking.</dd></div>
+<div><dt>Privy</dt><dd>Wallet creation and transaction signing.</dd></div>
+<div><dt>OUSD</dt><dd>The dollar stablecoin we settle in. Reserve details and attestations are in the issuer’s disclosures.</dd></div>
+<div><dt>Tempo</dt><dd>A payments blockchain for settlement. Fees can be paid in stablecoin, and transfers support memo fields.</dd></div>
+</dl></div></section>
+
+<section id="faq"><div class="wrap">
+<div class="sec-h"><h2>Questions finance teams ask</h2></div>
+<details><summary>Is Wayline a bank?</summary><p>No. Wayline is a software platform. Banking-adjacent services such as fiat conversion and money transmission are provided by our regulated partners.</p></details>
+<details><summary>What is OUSD?</summary><p>OUSD is a US dollar stablecoin issued by Bridge and operated by Open Standard. It isn’t a bank deposit and isn’t FDIC-insured. Read the issuer’s disclosures for reserve information.</p></details>
+<details><summary>What happens if a payout fails?</summary><p>Handling depends on the payout rail and the recipient’s country. [Return and refund policy: TBD with partners.]</p></details>
+<details><summary>Which countries are supported?</summary><p>[Supported countries: TBD.] Availability varies by jurisdiction and by payout method.</p></details>
+</div></section>
+
+<section id="demo"><div class="wrap">
+<div class="demo">
+<div><h2>Tell us where you send money</h2><p>Share your payment corridors and monthly volume, and we’ll show you the flow end to end.</p></div>
+<form id="f" novalidate>
+<input type="text" name="company" placeholder="Company name" aria-label="Company name" autocomplete="organization">
+<input type="email" name="email" placeholder="Work email" aria-label="Work email" autocomplete="email">
+<button class="btn pri" type="submit">Book a demo</button>
+<p id="fm" role="status"></p>
+</form>
+</div></div></section>
+</main>
+<footer><div class="wrap">
+<a class="logo" href="#top">Wayline</a>
+<div class="links"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Licenses</a><a href="#">OUSD disclosures</a><a href="/wallet">Wallet demo</a></div>
+<p>Wayline is a software platform, not a bank. Fiat on/offramp, stablecoin issuance, and money transmission services are provided by [REGULATED PARTNER ENTITIES]. Stablecoins such as OUSD are not bank deposits and are not FDIC-insured. Availability varies by jurisdiction.</p>
+<p style="margin-top:12px">© 2026 Wayline. Demo site with mock data; no payments are processed.</p>
+</div></footer>
+<script>
+(function(){
+var $=function(s){return document.querySelector(s)},tl=$("#tl"),go=$("#go"),res=$("#res"),busy=false;
+var rm=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function val(n){return document.querySelector("input[name="+n+"]:checked").value}
+function usd(){var a=parseFloat($("#amt").value);return "$"+(isFinite(a)&&a>0?a:0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function steps(){
+var m=val("m"),d=val("d"),r=($("#ref").value||"no reference").trim(),a=usd();
+return [
+["Fund",m==="ach"?"Pull "+a+" from your linked bank account (Stripe).":m==="card"?"Charge "+a+" to your card through Stripe Crypto Onramp.":"Receive a "+a+" wire into your account (Bridge)."],
+["Convert","The dollars become OUSD (Bridge)."],
+["Settle on Tempo","Transfer OUSD with the memo “"+r+"”. The network fee is paid in stablecoin."],
+["Pay out",d==="bank"?"Bridge pays out to the recipient’s local bank account.":"OUSD is delivered to the recipient’s wallet."]
+]}
+function draw(state){
+var s=steps();tl.innerHTML="";
+s.forEach(function(x,i){
+var li=document.createElement("li");li.dataset.s=state[i]||"pending";
+li.innerHTML='<span class="dot"></span><div><strong></strong><span class="d"></span></div>';
+li.querySelector("strong").textContent=x[0];li.querySelector(".d").textContent=x[1];tl.appendChild(li)})}
+function wait(t){return new Promise(function(r){setTimeout(r,rm?120:t)})}
+go.addEventListener("click",async function(){
+if(busy)return;var a=parseFloat($("#amt").value);
+if(!(a>0)){res.style.color="inherit";res.textContent="Enter an amount greater than zero to run the simulation.";return}
+busy=true;go.disabled=true;res.textContent="";res.style.color="";
+var st=[];draw(st);
+for(var i=0;i<4;i++){st[i]="active";draw(st);await wait(950);st[i]="done";draw(st)}
+res.textContent="Settled in simulation: "+usd()+" for "+($("#ref").value||"your payment")+".";
+go.textContent="Send another";go.disabled=false;busy=false});
+document.querySelectorAll("#amt,#ref,input[name=m],input[name=d]").forEach(function(el){el.addEventListener("input",function(){if(!busy)draw([])})});
+draw([]);
+$("#f").addEventListener("submit",function(e){e.preventDefault();
+var em=this.email.value.trim();
+$("#fm").textContent=/^\S+@\S+\.\S+$/.test(em)?"Thanks. This form is a mock, so nothing was sent.":"Enter a valid work email so we know where to reach you."});
+})();
+</script>
+</body>
+</html>

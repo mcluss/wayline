@@ -13,9 +13,10 @@ const CHAINS = [
 ] as const;
 type ChainId = (typeof CHAINS)[number]["id"];
 
-// Must match the Bridge key saved in the Privy dashboard: "bridge" for a live key,
-// "bridge-sandbox" for a sandbox key.
-const BRIDGE_PROVIDER = "bridge";
+// Which Bridge key in the Privy dashboard to use. Live by default; set
+// NEXT_PUBLIC_BRIDGE_ENV=sandbox to use the sandbox key (test money, test KYC).
+const IS_SANDBOX = process.env.NEXT_PUBLIC_BRIDGE_ENV === "sandbox";
+const BRIDGE_PROVIDER = IS_SANDBOX ? "bridge-sandbox" : "bridge";
 
 export function BankDeposit({ ethereumAddress }: { ethereumAddress: string }) {
   const { user } = usePrivy();
@@ -55,7 +56,9 @@ export function BankDeposit({ ethereumAddress }: { ethereumAddress: string }) {
 
   return (
     <section className="card">
-      <p className="label" style={{ marginTop: 0 }}>Add funds by bank transfer</p>
+      <p className="label" style={{ marginTop: 0 }}>
+        Add funds by bank transfer{IS_SANDBOX && " (sandbox: test mode, no real money)"}
+      </p>
       <p className="muted" style={{ marginTop: 0 }}>
         Send USD, EUR, GBP, MXN or BRL from your business bank account and receive USDC in this wallet.
         The first time, you’ll verify your identity with Bridge.
